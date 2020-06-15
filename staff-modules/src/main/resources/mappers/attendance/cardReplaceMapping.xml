@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linbin.modules.attendance.dao.CardReplaceDao">
+    <resultMap id="base" type="com.linbin.modules.attendance.entity.CardReplace">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="applyName" column="apply_name"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="cardType" column="card_type"/>
+        <result property="errStatus" column="err_status"/>
+        <result property="clockTime" column="clock_time"/>
+        <result property="reason" column="reason"/>
+        <result property="approvalStatus" column="approval_status"/>
+        <result property="submitTime" column="submit_time"/>
+    </resultMap>
+
+    <select id="getOneApprovalInfo" resultMap="base">
+        select * from card_replace where username = #{username} and clock_time = #{clockTime}
+    </select>
+
+    <select id="getCardReplaceList" resultMap="base">
+        select * from card_replace
+        <where>
+            dept_id = #{deptId}
+            <if test="queryType != null">
+                and card_type = #{queryType}
+            </if>
+            <if test="queryStatus != null">
+                and err_status = #{queryStatus}
+            </if>
+            <if test="queryApprovalStatus != null">
+                and approval_status = #{queryApprovalStatus}
+            </if>
+        </where>
+        order by clock_time desc
+        limit #{index} , #{pageSize}
+    </select>
+
+    <select id="countTotal" resultType="Integer">
+        select count(*) from card_replace
+        <where>
+            dept_id = #{deptId}
+            <if test="queryType != null">
+                and card_type = #{queryType}
+            </if>
+            <if test="queryStatus != null">
+                and err_status = #{queryStatus}
+            </if>
+            <if test="queryApprovalStatus != null">
+                and approval_status = #{queryApprovalStatus}
+            </if>
+        </where>
+    </select>
+</mapper>

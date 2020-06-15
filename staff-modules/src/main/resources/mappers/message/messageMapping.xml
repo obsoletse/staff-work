@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linbin.modules.message.dao.MessageDao">
+    <resultMap id="baseMap" type="com.linbin.modules.message.entity.Message">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="type" column="type"/>
+        <result property="submitTime" column="submit_time"/>
+        <result property="sendTime" column="send_time"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+    <select id="getMsgList" resultMap="baseMap">
+        select * from message
+        <where>
+                type = 1
+            <if test="queryTitle != null">
+                and title like #{queryTitle}
+            </if>
+            <if test="queryStatus != null">
+                and status = #{queryStatus}
+            </if>
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (submit_time &gt;= #{queryStartDate} and submit_time  &lt;= #{queryEndDate})
+            </if>
+        </where>
+        order by submit_time desc
+        limit #{index} , #{pageSize}
+    </select>
+
+    <select id="countTotal" resultType="Integer">
+        select count(*) from message
+        <where>
+                type = 1
+            <if test="queryTitle != null">
+                and title like #{queryTitle}
+            </if>
+            <if test="queryStatus != null">
+                and status = #{queryStatus}
+            </if>
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (submit_time &gt;= #{queryStartDate} and submit_time  &lt;= #{queryEndDate})
+            </if>
+        </where>
+    </select>
+
+    <select id="queryUnreadMsg" resultMap="baseMap">
+        select message.* from message,msg_user
+        where message.id = msg_user.msg_id and msg_user.user_id = #{userId} and msg_user.status = 0 order by send_time desc
+    </select>
+
+    <select id="queryReadMsg" resultMap="baseMap">
+        select message.* from message,msg_user
+        where message.id = msg_user.msg_id and msg_user.user_id = #{userId} and msg_user.status = 1 order by send_time desc
+    </select>
+
+    <select id="queryRecycleMsg" resultMap="baseMap">
+        select message.* from message,msg_user
+        where message.id = msg_user.msg_id and msg_user.user_id = #{userId} and msg_user.status = 2 order by send_time desc
+    </select>
+
+    <insert id="addPersonalMsg" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into message(title,content,type,send_time) values (#{title},#{content},#{type},#{sendTime})
+    </insert>
+</mapper>

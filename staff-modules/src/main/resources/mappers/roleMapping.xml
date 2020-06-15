@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linbin.base.dao.RoleDao">
+    <resultMap id="baseResultMap" type="com.linbin.base.entity.Role">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+    </resultMap>
+    <select id="queryRoleByUserId" parameterType="Integer" resultType="String">
+        select sys_role.name from sys_role
+            left join sys_user_role on sys_role.id = sys_user_role.role_id
+            where sys_user_role.user_id = #{userId}
+    </select>
+
+    <select id="queryRoleIdByName" parameterType="String" resultType="Integer">
+        select id from sys_role where name = #{roleName}
+    </select>
+
+    <select id="queryRoleList" resultMap="baseResultMap">
+        select * from sys_role limit #{index} , #{pageSize}
+    </select>
+
+    <select id="countTotal" resultType="Integer">
+        select count(*) from sys_role
+    </select>
+
+    <select id="getLikeRoles" resultMap="baseResultMap">
+        select * from sys_role where code like #{roleLike} or name like #{roleLike} limit #{index} , #{pageSize}
+    </select>
+
+    <select id="countRoleLikeTotal" resultType="Integer">
+        select count(*) from sys_role where code like #{roleLike} or name like #{roleLike}
+    </select>
+
+    <select id="queryOneByCode" resultMap="baseResultMap">
+        select * from sys_role where code = #{code}
+    </select>
+
+    <select id="queryOneByName" resultMap="baseResultMap">
+        select * from sys_role where name = #{name}
+    </select>
+</mapper>

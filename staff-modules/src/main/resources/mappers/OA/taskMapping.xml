@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linbin.modules.OA.dao.TaskDao">
+    <resultMap id="baseResultMap" type="com.linbin.modules.OA.entity.Task">
+        <id property="id" column="id"/>
+        <result property="taskName" column="task_name"/>
+        <result property="proId" column="pro_id"/>
+        <result property="proName" column="proName"/>
+        <result property="taskCreator" column="task_creator"/>
+        <result property="taskWorker" column="task_worker"/>
+        <result property="status" column="status"/>
+        <result property="priority" column="priority"/>
+        <result property="description" column="description"/>
+        <result property="taskCreatorName" column="taskCreatorName"/>
+        <result property="taskWorkerName" column="taskWorkerName"/>
+    </resultMap>
+    <select id="getTaskList" resultMap="baseResultMap">
+        select
+        t.id,t.task_name,t.pro_id,p.pro_name as proName,t.task_creator,su1.real_name as taskCreatorName,t.task_worker,su2.real_name as taskWorkerName,t.status,t.priority,t.description
+        from task t
+        left join sys_user su1 on t.task_creator = su1.id
+        left join sys_user su2 on t.task_worker = su2.id
+        left join project p on t.pro_id = p.id
+        <where>
+            <if test="query != null">
+                t.task_name like #{query}
+            </if>
+            <if test="userId != -1">
+                and t.task_worker = #{userId}
+            </if>
+        </where>
+        order by t.id
+        limit #{index} , #{pageSize}
+    </select>
+
+    <select id="countTotal" resultType="Integer">
+        select count(*) from task
+        <where>
+            <if test="query != null">
+                task_name like ${query}
+            </if>
+            <if test="userId != -1">
+                and task_worker = #{userId}
+            </if>
+        </where>
+    </select>
+
+    <select id="getOneTaskById" resultMap="baseResultMap">
+        select
+            t.id,t.task_name,t.pro_id,t.task_creator,su1.real_name as taskCreatorName,t.task_worker,su2.real_name as taskWorkName,t.status,t.priority,t.description
+        from task t
+        left join sys_user su1 on t.task_creator = su1.id
+        left join sys_user su2 on t.task_worker = su2.id
+        where t.id = #{taskId}
+    </select>
+
+    <update id="trustTask">
+        update task set task_worker = #{userId} where id = #{taskId}
+    </update>
+</mapper>

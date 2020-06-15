@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linbin.modules.department.dao.DeptDao">
+    <resultMap id="baseResultMap" type="com.linbin.modules.department.entity.Department">
+        <id property="id" column="id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="deptNameEn" column="dept_name_en"/>
+        <result property="deptAddress" column="dept_address"/>
+        <result property="deptType" column="dept_type"/>
+        <result property="deptCode" column="dept_code"/>
+        <result property="description" column="description"/>
+        <result property="status" column="status"/>
+    </resultMap>
+    <resultMap id="allDepart" type="com.linbin.modules.department.entity.Department" extends="baseResultMap">
+        <collection property="children" ofType="com.linbin.modules.department.entity.Department">
+            <id property="id" column="id2"/>
+            <result property="parentId" column="parent_id2"/>
+            <result property="deptName" column="dept_name2"/>
+            <result property="deptNameEn" column="dept_name_en2"/>
+            <result property="deptAddress" column="dept_address2"/>
+            <result property="deptType" column="dept_type2"/>
+            <result property="deptCode" column="dept_code2"/>
+            <result property="description" column="description2"/>
+            <result property="status" column="status2"/>
+            <collection property="children" ofType="com.linbin.modules.department.entity.Department">
+                <id property="id" column="id3"/>
+                <result property="parentId" column="parent_id3"/>
+                <result property="deptName" column="dept_name3"/>
+                <result property="deptNameEn" column="dept_name_en3"/>
+                <result property="deptAddress" column="dept_address3"/>
+                <result property="deptType" column="dept_type3"/>
+                <result property="deptCode" column="dept_code3"/>
+                <result property="description" column="description3"/>
+                <result property="status" column="status3"/>
+            </collection>
+        </collection>
+    </resultMap>
+    <select id="queryAllDept" resultMap="allDepart">
+        SELECT
+	        d1.*,
+					d2.id AS id2,
+					d2.parent_id AS parent_id2,
+					d2.dept_type AS dept_type2,
+					d2.dept_name AS dept_name2,
+					d2.dept_name_en AS dept_name_en2,
+					d2.dept_address AS dept_address2,
+					d2.dept_type AS dept_type2,
+					d2.description AS description2,
+					d2.status AS status2,
+					d3.id AS id3,
+					d3.parent_id AS parent_id3,
+					d3.dept_type AS dept_type2,
+					d3.dept_name AS dept_name3,
+					d3.dept_name_en AS dept_name_en3,
+					d3.dept_address AS dept_address3,
+					d3.dept_type AS dept_type3,
+					d3.description AS description3,
+					d3.status AS status3
+        FROM
+	    (SELECT DISTINCT d.* FROM sys_dept d WHERE d.parent_id = 0) AS d1
+	    LEFT JOIN sys_dept d2 ON d2.parent_id = d1.id
+	    LEFT JOIN sys_dept d3 ON d3.parent_id = d2.id
+        order by d1.id , d2.id , d3.id
+    </select>
+    <select id="querySelectDept" resultMap="allDepart">
+        SELECT
+	        d1.*,
+					d2.id AS id2,
+					d2.parent_id AS parent_id2,
+					d2.dept_type AS dept_type2,
+					d2.dept_name AS dept_name2,
+					d2.dept_name_en AS dept_name_en2,
+					d2.dept_address AS dept_address2,
+					d2.dept_type AS dept_type2,
+					d2.description AS description2,
+					d2.status AS status2,
+					d3.id AS id3,
+					d3.parent_id AS parent_id3,
+					d3.dept_type AS dept_type2,
+					d3.dept_name AS dept_name3,
+					d3.dept_name_en AS dept_name_en3,
+					d3.dept_address AS dept_address3,
+					d3.dept_type AS dept_type3,
+					d3.description AS description3,
+					d3.status AS status3
+        FROM
+	    (SELECT DISTINCT d.* FROM sys_dept d WHERE d.parent_id = 0 and d.status = 1) AS d1
+	    LEFT JOIN sys_dept d2 ON d2.parent_id = d1.id and d2.status = 1
+	    LEFT JOIN sys_dept d3 ON d3.parent_id = d2.id and d3.status = 1
+        order by d1.id , d2.id , d3.id
+    </select>
+    <select id="queryOneByParentId" parameterType="Integer" resultMap="baseResultMap">
+        select * from sys_dept where parent_id = #{parentId}
+    </select>
+    <select id="queryOneByName" parameterType="String" resultMap="baseResultMap">
+        select * from sys_dept where dept_name = #{deptName}
+    </select>
+    <select id="queryOneByNameEn" parameterType="String" resultMap="baseResultMap">
+        select * from sys_dept where dept_name_en = #{deptEnName}
+    </select>
+    <select id="getDeptLike" resultMap="allDepart">
+        SELECT
+	        d1.*,
+					d2.id AS id2,
+					d2.parent_id AS parent_id2,
+					d2.dept_type AS dept_type2,
+					d2.dept_name AS dept_name2,
+					d2.dept_name_en AS dept_name_en2,
+					d2.dept_address AS dept_address2,
+					d2.dept_type AS dept_type2,
+					d2.description AS description2,
+					d2.status AS status2,
+					d3.id AS id3,
+					d3.parent_id AS parent_id3,
+					d3.dept_type AS dept_type2,
+					d3.dept_name AS dept_name3,
+					d3.dept_name_en AS dept_name_en3,
+					d3.dept_address AS dept_address3,
+					d3.dept_type AS dept_type3,
+					d3.description AS description3,
+					d3.status AS status3
+        FROM
+	    (SELECT DISTINCT d.* FROM sys_dept d WHERE d.parent_id = 0 and d.status = 1) AS d1
+	    LEFT JOIN sys_dept d2 ON d2.parent_id = d1.id and d2.status = 1
+	    LEFT JOIN sys_dept d3 ON d3.parent_id = d2.id and d3.status = 1
+	    where d1.dept_name like #{deptLike} or d2.dept_name like #{deptLike} or d3.dept_name like #{deptLike}
+        order by d1.id , d2.id , d3.id
+    </select>
+</mapper>

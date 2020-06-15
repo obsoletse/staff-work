@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linbin.modules.OA.dao.UseCarDao">
+    <resultMap id="baseMap" type="com.linbin.modules.OA.entity.UseCarOrder">
+        <id property="id" column="id"/>
+        <result property="workNo" column="work_no"/>
+        <result property="applyName" column="apply_name"/>
+        <result property="carNumber" column="car_number"/>
+        <result property="useCarStartTime" column="use_car_start_time"/>
+        <result property="useCarEndTime" column="use_car_end_time"/>
+        <result property="useCarReason" column="use_car_reason"/>
+        <result property="useCarTime" column="use_car_time"/>
+        <result property="destination" column="destination"/>
+        <result property="km" column="km"/>
+        <result property="cost" column="cost"/>
+        <result property="status" column="status"/>
+        <result property="submitTime" column="submit_time"/>
+    </resultMap>
+
+    <select id="getMyUseCarList" resultMap="baseMap">
+        select * from use_car
+        <where>
+            work_no = #{workNo}
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (use_car_start_time &gt;= #{queryStartDate} and use_car_end_time &lt;= #{queryEndDate})
+            </if>
+        </where>
+        order by submit_time desc
+        limit #{index} , #{pageSize}
+    </select>
+
+    <select id="countTotal" resultType="Integer">
+        select count(*) from use_car
+        <where>
+            work_no = #{workNo}
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (use_car_start_time &gt;= #{queryStartDate} and use_car_end_time &lt;= #{queryEndDate})
+            </if>
+        </where>
+    </select>
+
+    <select id="getUseCarApprovalList" resultMap="baseMap">
+        select use_car.* from use_car , sys_user
+        <where>
+            use_car.work_no = sys_user.work_no and sys_user.dept_id = #{deptId} and use_car.status != 0
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (use_car_start_time &gt;= #{queryStartDate} and use_car_end_time &lt;= #{queryEndDate})
+            </if>
+        </where>
+        order by submit_time desc
+        limit #{index} , #{pageSize}
+    </select>
+
+    <select id="countApprovalTotal" resultType="Integer">
+        select count(*) from use_car, sys_user
+        <where>
+            use_car.work_no = sys_user.work_no and sys_user.dept_id = #{deptId} and use_car.status != 0
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (use_car_start_time &gt;= #{queryStartDate} and use_car_end_time &lt;= #{queryEndDate})
+            </if>
+        </where>
+        order by submit_time desc
+    </select>
+</mapper>

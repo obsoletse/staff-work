@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linbin.modules.studyPlat.dao.CourseDao">
+    <resultMap id="base" type="com.linbin.modules.studyPlat.entity.Course">
+        <id property="id" column="id"/>
+        <result property="courseName" column="course_name"/>
+        <result property="modality" column="modality"/>
+        <result property="source" column="source"/>
+        <result property="teacher" column="teacher"/>
+        <result property="heat" column="heat"/>
+        <result property="description" column="description"/>
+    </resultMap>
+    <select id="queryOneByName" parameterType="String" resultMap="base">
+        select * from study_course where course_name = #{courseName}
+    </select>
+    <select id="queryCourseList" resultMap="base">
+        select * from study_course limit #{index} , #{pageSize}
+    </select>
+
+    <select id="getLikeCourse" resultMap="base">
+        select * from study_course where course_name like #{courseLike} or teacher like #{courseLike} limit #{index} , #{pageSize}
+    </select>
+
+    <select id="countTotal" resultType="Integer">
+        select count(*) from study_course
+    </select>
+
+    <select id="countCourseLikeTotal" resultType="Integer">
+        select count(*) from study_course where course_name like #{courseLike} or teacher like #{courseLike}
+    </select>
+
+    <select id="getCourseList" resultMap="base">
+        select * from study_course
+        <where>
+            <if test="query != null">
+                and course_name like #{query}
+            </if>
+            <if test="modality != null">
+                and modality = #{modality}
+            </if>
+        </where>
+        order by id
+        limit #{index} , #{pageSize}
+    </select>
+
+    <select id="countCourseTotal" resultType="Integer">
+        select count(*) from study_course
+        <where>
+            <if test="query != null">
+                and course_name like #{query}
+            </if>
+            <if test="modality != null">
+                and modality = #{modality}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateHeatById" parameterType="Integer">
+        update study_course set heat = (heat + 1) where id = #{courseId}
+    </update>
+
+    <select id="getMyCourseList" resultMap="base">
+        select study_course.* from study_course , course_user
+        <where>
+            study_course.id = course_user.course_id
+            and course_user.user_id = #{userId}
+            <if test="query != null">
+                and course_name like #{query}
+            </if>
+            <if test="modality != null">
+                and modality = #{modality}
+            </if>
+        </where>
+        order by id
+        limit #{index} , #{pageSize}
+    </select>
+
+    <select id="countMyCourseTotal" resultType="Integer">
+        select count(*) from study_course,course_user
+        <where>
+            study_course.id = course_user.course_id
+            and course_user.user_id = #{userId}
+            <if test="query != null">
+                and course_name like #{query}
+            </if>
+            <if test="modality != null">
+                and modality = #{modality}
+            </if>
+        </where>
+    </select>
+
+    <select id="getMyCourseList1" resultMap="base">
+        select study_course.* from study_course , course_user
+        where
+            study_course.id = course_user.course_id
+            and study_course.modality != 0
+            and course_user.user_id = #{userId}
+    </select>
+</mapper>

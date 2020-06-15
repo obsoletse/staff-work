@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linbin.modules.evaluation.dao.EvaluationDao">
+    <resultMap id="baseMap" type="com.linbin.modules.evaluation.entity.Evaluation">
+        <id property="id" column="id"/>
+        <result property="workNo" column="work_no"/>
+        <result property="name" column="name"/>
+        <result property="date" column="date"/>
+        <result property="selfMark" column="self_mark"/>
+        <result property="selfDescription" column="self_description"/>
+        <result property="status" column="status"/>
+        <result property="approvalName" column="approval_name"/>
+        <result property="approvalMark" column="approval_mark"/>
+        <result property="approvalDescription" column="approval_description"/>
+    </resultMap>
+
+    <select id="getMyEvaluationList" resultMap="baseMap">
+        select * from evaluation
+        <where>
+            work_no = #{workNo} and status in (0,1)
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (date &gt;= #{queryStartDate} and date &lt;= #{queryEndDate})
+            </if>
+            <if test="queryStatus != null">
+                and status = #{queryStatus}
+            </if>
+        </where>
+        order by date desc
+        limit #{index} , #{pageSize}
+    </select>
+
+    <select id="countTotal" resultType="Integer">
+        select count(*) from evaluation
+        <where>
+            work_no = #{workNo} and status in (0,1)
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (date &gt;= #{queryStartDate} and date &lt;= #{queryEndDate})
+            </if>
+            <if test="queryStatus != null">
+                and status = #{queryStatus}
+            </if>
+        </where>
+    </select>
+
+    <select id="getMyEvaluationList1" resultMap="baseMap">
+        select * from evaluation
+        <where>
+            work_no = #{workNo} and status = 2
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (date &gt;= #{queryStartDate} and date &lt;= #{queryEndDate})
+            </if>
+        </where>
+        order by name desc , date desc
+        limit #{index} , #{pageSize}
+    </select>
+
+    <select id="countTotal1" resultType="Integer">
+        select count(*) from evaluation
+        <where>
+            work_no = #{workNo} and status = 2
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (date &gt;= #{queryStartDate} and date &lt;= #{queryEndDate})
+            </if>
+        </where>
+    </select>
+
+    <select id="queryOneByDate" resultMap="baseMap">
+        select * from evaluation where date = #{date} and work_no = #{workNo}
+    </select>
+
+    <select id="getAllEvaluationList" resultMap="baseMap">
+        select evaluation.* from evaluation ,sys_user
+        <where>
+            evaluation.work_no = sys_user.work_no
+            and sys_user.dept_id = #{deptId}
+            and status in (1,2)
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (date &gt;= #{queryStartDate} and date &lt;= #{queryEndDate})
+            </if>
+            <if test="queryStatus != null">
+                and status = #{queryStatus}
+            </if>
+        </where>
+        order by date desc
+        limit #{index} , #{pageSize}
+    </select>
+
+    <select id="countAllTotal" resultType="Integer">
+        select count(*) from evaluation,sys_user
+        <where>
+            evaluation.work_no = sys_user.work_no
+            and sys_user.dept_id = #{deptId}
+            and status in (1,2)
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (date &gt;= #{queryStartDate} and date &lt;= #{queryEndDate})
+            </if>
+            <if test="queryStatus != null">
+                and status = #{queryStatus}
+            </if>
+        </where>
+    </select>
+</mapper>

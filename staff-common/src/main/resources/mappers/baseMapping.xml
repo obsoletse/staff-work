@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linbin.system.dao.IBaseDao">
+    <!--增-->
+    <insert id="add" >
+        insert into ${tableName} values
+        <foreach collection="params"  item="param" open="(" separator="," close=")" >
+            #{param}
+        </foreach>
+    </insert>
+
+    <!--删-->
+    <delete id="delete">
+        delete from ${tableName} where id = #{id}
+    </delete>
+
+    <!--改-->
+    <update id="update">
+        update ${tableName}
+        <set>
+            <foreach collection="params"  item="param" >
+                ${param},
+            </foreach>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--查-->
+    <!-- 按id查找一个 -->
+    <select id="queryOneById" resultType="hashmap">
+        select * from ${tableName} where id = #{id}
+    </select>
+    <!-- 查询所有 -->
+    <select id="queryAll" resultType="hashmap">
+        select * from ${tableName}
+    </select>
+
+    <!--分页查询-->
+    <select id="queryByPage" resultType="hashmap">
+        select * from ${name} where  ${where} limit #{page},#{pageSize}
+    </select>
+
+    <select id="queryCount" resultType="int">
+        select count(*) from ${name} where ${where}
+    </select>
+</mapper>

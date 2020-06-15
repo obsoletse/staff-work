@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linbin.base.dao.MenuDao">
+    <resultMap id="BaseResultMap" type="com.linbin.base.entity.Menu">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="parent_id" property="parentId" jdbcType="INTEGER" />
+        <result column="path" property="path" jdbcType="VARCHAR" />
+        <result column="name" property="name" jdbcType="VARCHAR" />
+        <result column="icon" property="icon" jdbcType="VARCHAR" />
+        <result column="enabled" property="enabled" jdbcType="INTEGER" />
+    </resultMap>
+    <!--通过用户id查询返回的结果集-->
+    <resultMap id="Menu2" type="com.linbin.base.entity.Menu" extends="BaseResultMap">
+        <collection property="children" ofType="com.linbin.base.entity.Menu">
+            <id column="id2" property="id" jdbcType="INTEGER" />
+            <result column="path2" property="path" jdbcType="VARCHAR" />
+            <result column="name2" property="name" jdbcType="VARCHAR" />
+            <result column="icon2" property="icon" jdbcType="VARCHAR" />
+            <result column="parent_id2" property="parentId" jdbcType="INTEGER" />
+            <result column="enabled2" property="enabled" jdbcType="INTEGER" />
+        </collection>
+    </resultMap>
+
+    <select id="getMenusByUserId" parameterType="Integer" resultMap="Menu2">
+        SELECT
+	        m1.*,
+            m2.id AS id2,
+            m2.parent_id AS parent_id2,
+            m2.path AS path2,
+            m2.icon AS icon2,
+            m2.name AS name2,
+            m2.enabled AS enabled2
+        FROM
+	    (SELECT DISTINCT m.* FROM sys_menu m , sys_user_role sur , sys_role_menu srm
+	     WHERE m.parent_id = 0
+	        AND sur.user_id = #{userId} /*sys_user_role中间表user_id为用户id*/
+	        AND sur.role_id = srm.role_id /*sys_user_role中间表role_id对应sys_role_menu的role_id*/
+	        AND srm.menu_id = m.id ) /*sys_role_menu中间表对应的menu*/AS m1
+	    LEFT JOIN
+	    (SELECT DISTINCT m.* FROM sys_menu m , sys_user_role sur , sys_role_menu srm
+	     WHERE sur.user_id = #{userId}
+            AND sur.role_id = srm.role_id
+            AND srm.menu_id = m.id) AS m2
+        ON m2.parent_id = m1.id
+        order by m1.id , m2.id
+    </select>
+
+    <select id="getCheckMenu" parameterType="Integer" resultType="Integer">
+        select menu_id from sys_role_menu
+        left join sys_menu on sys_role_menu.menu_id = sys_menu.id
+        where role_id = #{roleId} and path like '/%'
+    </select>
+
+    <select id="getAllMenus" parameterType="Integer" resultMap="Menu2">
+        SELECT
+	        m1.*,
+            m2.id AS id2,
+            m2.parent_id AS parent_id2,
+            m2.path AS path2,
+            m2.icon AS icon2,
+            m2.name AS name2,
+            m2.enabled AS enabled2
+        FROM
+	    (SELECT DISTINCT m.* FROM sys_menu m WHERE m.parent_id = 0) /*sys_role_menu中间表对应的menu*/AS m1
+	    LEFT JOIN sys_menu m2
+        ON m2.parent_id = m1.id
+        order by m1.id , m2.id
+    </select>
+
+    <select id="queryOneByName" parameterType="String" resultMap="BaseResultMap">
+        select * from sys_menu where name = #{menuName}
+    </select>
+
+    <select id="getMenuLike" parameterType="String" resultMap="Menu2">
+        SELECT
+	        m1.*,
+            m2.id AS id2,
+            m2.parent_id AS parent_id2,
+            m2.path AS path2,
+            m2.icon AS icon2,
+            m2.name AS name2,
+            m2.enabled AS enabled2
+        FROM
+	    (SELECT DISTINCT m.* FROM sys_menu m WHERE m.parent_id = 0) /*sys_role_menu中间表对应的menu*/AS m1
+	    LEFT JOIN sys_menu m2
+        ON m2.parent_id = m1.id
+        where m1.name like #{menuLike} or m2.name like #{menuLike}
+        order by m1.id , m2.id
+    </select>
+
+</mapper>

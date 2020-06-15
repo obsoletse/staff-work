@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linbin.modules.OA.dao.WorkOutDao">
+    <resultMap id="baseMap" type="com.linbin.modules.OA.entity.WorkOutOrder">
+        <id property="id" column="id"/>
+        <result property="workNo" column="work_no"/>
+        <result property="applyName" column="apply_name"/>
+        <result property="workOutStartTime" column="work_out_start_time"/>
+        <result property="workOutEndTime" column="work_out_end_time"/>
+        <result property="workOutReason" column="work_out_reason"/>
+        <result property="workOutTime" column="work_out_time"/>
+        <result property="workOutPlace" column="work_out_place"/>
+        <result property="status" column="status"/>
+        <result property="submitTime" column="submit_time"/>
+    </resultMap>
+
+    <select id="getMyWorkOutList" resultMap="baseMap">
+        select * from work_outside
+        <where>
+            work_no = #{workNo}
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (work_out_start_time &gt;= #{queryStartDate} and work_out_end_time &lt;= #{queryEndDate})
+            </if>
+        </where>
+        order by submit_time desc
+        limit #{index} , #{pageSize}
+    </select>
+
+    <select id="countTotal" resultType="Integer">
+        select count(*) from work_outside
+        <where>
+            work_no = #{workNo}
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (work_out_start_time &gt;= #{queryStartDate} and work_out_end_time &lt;= #{queryEndDate})
+            </if>
+        </where>
+    </select>
+
+    <select id="getWorkOutApprovalList" resultMap="baseMap">
+        select work_outside.* from work_outside , sys_user
+        <where>
+            work_outside.work_no = sys_user.work_no and sys_user.dept_id = #{deptId} and work_outside.status != 0
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (work_out_start_time &gt;= #{queryStartDate} and work_out_end_time &lt;= #{queryEndDate})
+            </if>
+        </where>
+        order by submit_time desc
+        limit #{index} , #{pageSize}
+    </select>
+
+    <select id="countApprovalTotal" resultType="Integer">
+        select count(*) from work_outside, sys_user
+        <where>
+            work_outside.work_no = sys_user.work_no and sys_user.dept_id = #{deptId} and work_outside.status != 0
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (work_out_start_time &gt;= #{queryStartDate} and work_out_end_time &lt;= #{queryEndDate})
+            </if>
+        </where>
+        order by submit_time desc
+    </select>
+    
+</mapper>

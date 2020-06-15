@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linbin.modules.OA.dao.InBoxDao">
+    <resultMap id="baseMap" type="com.linbin.modules.OA.entity.InBox">
+        <id property="id" column="id"/>
+        <result property="inSender" column="in_sender"/>
+        <result property="inSenderName" column="in_sender_name"/>
+        <result property="inReceiver" column="in_receiver"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="receiveTime" column="receive_time"/>
+        <result property="receiveStatus" column="receive_status"/>
+        <result property="emailStatus" column="email_status"/>
+    </resultMap>
+
+    <select id="getReceiveBoxCount" parameterType="Integer" resultType="Integer">
+        select count(*) from email_receive where in_receiver = #{userId} and receive_status = 1
+    </select>
+
+    <select id="getBinBoxCount" parameterType="Integer" resultType="Integer">
+        select count(*) from email_receive where in_receiver = #{userId} and receive_status = 0
+    </select>
+
+    <select id="getReceiveBoxList" resultMap="baseMap">
+        select e.id,e.in_sender,sys_user.real_name as in_sender_name,e.in_receiver,e.title,e.content,e.receive_time,e.receive_status,e.email_status
+            from email_receive e
+            left join sys_user on e.in_sender = sys_user.id
+            where e.in_receiver = #{userId} and e.receive_status = 1
+            order by e.receive_time desc
+            limit #{index},#{pageSize}
+    </select>
+
+    <select id="getBinBoxList" resultMap="baseMap">
+        select e.id,e.in_sender,sys_user.real_name as in_sender_name,e.in_receiver,e.title,e.content,e.receive_time,e.receive_status,e.email_status
+            from email_receive e
+            left join sys_user on e.in_sender = sys_user.id
+            where e.in_receiver = #{userId} and e.receive_status = 0
+            order by e.receive_time desc
+            limit #{index},#{pageSize}
+    </select>
+
+    <update id="updateReceiveStatus" parameterType="Integer">
+        update email_receive set receive_status = #{status} where id = #{id}
+    </update>
+
+    <update id="updateEmailStatus" parameterType="Integer">
+        update email_receive set email_status = 1 where id = #{id}
+    </update>
+</mapper>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linbin.modules.studyPlat.dao.CourseUserDao">
+    <resultMap id="baseMap" type="com.linbin.modules.studyPlat.entity.CourseUser">
+        <id column="id" property="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="courseId" column="course_id"/>
+    </resultMap>
+
+    <select id="queryOne" resultMap="baseMap">
+        select * from course_user where user_id = #{userId} and course_id = #{courseId}
+    </select>
+
+    <delete id="delOne" parameterType="Integer">
+        delete from course_user where user_id = #{userId} and course_id = #{courseId}
+    </delete>
+</mapper>

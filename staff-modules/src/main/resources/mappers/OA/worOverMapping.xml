@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linbin.modules.OA.dao.WorkOverDao">
+    <resultMap id="baseMap" type="com.linbin.modules.OA.entity.WorkOverOrder">
+        <id property="id" column="id"/>
+        <result property="workNo" column="work_no"/>
+        <result property="applyName" column="apply_name"/>
+        <result property="proId" column="pro_id"/>
+        <result property="proName" column="pro_name"/>
+        <result property="workOverStartTime" column="work_over_start_time"/>
+        <result property="workOverEndTime" column="work_over_end_time"/>
+        <result property="workOverReason" column="work_over_reason"/>
+        <result property="workOverTime" column="work_over_time"/>
+        <result property="status" column="status"/>
+        <result property="submitTime" column="submit_time"/>
+    </resultMap>
+
+    <select id="getMyWorkOverList" resultMap="baseMap">
+        select
+            w.id,w.work_no,w.apply_name,w.pro_id,pro_name,w.work_over_start_time,w.work_over_reason,w.work_over_end_time,w.work_over_time,w.status,w.submit_time
+        from work_overtime w
+        left join project on w.pro_id = project.id
+        <where>
+            work_no = #{workNo}
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (work_over_start_time &gt;= #{queryStartDate} and work_over_end_time &lt;= #{queryEndDate})
+            </if>
+        </where>
+        order by submit_time desc
+        limit #{index} , #{pageSize}
+    </select>
+
+    <select id="countTotal" resultType="Integer">
+        select count(*) from work_overtime
+        <where>
+            work_no = #{workNo}
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (work_over_start_time &gt;= #{queryStartDate} and work_over_end_time &lt;= #{queryEndDate})
+            </if>
+        </where>
+    </select>
+
+    <select id="getWorkOverApprovalList" resultMap="baseMap">
+        select
+            w.id,w.work_no,w.apply_name,w.pro_id,pro_name,w.work_over_start_time,w.work_over_reason,w.work_over_end_time,w.work_over_time,w.status,w.submit_time
+        from sys_user , work_overtime w
+        left join project on w.pro_id = project.id
+        <where>
+            w.work_no = sys_user.work_no and sys_user.dept_id = #{deptId} and w.status != 0
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (work_over_start_time &gt;= #{queryStartDate} and work_over_end_time &lt;= #{queryEndDate})
+            </if>
+        </where>
+        order by submit_time desc
+        limit #{index} , #{pageSize}
+    </select>
+
+    <select id="countApprovalTotal" resultType="Integer">
+        select count(*) from work_overtime, sys_user
+        <where>
+            work_overtime.work_no = sys_user.work_no and sys_user.dept_id = #{deptId} and work_overtime.status != 0
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (work_over_start_time &gt;= #{queryStartDate} and work_over_end_time &lt;= #{queryEndDate})
+            </if>
+        </where>
+        order by submit_time desc
+    </select>
+    
+</mapper>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.linbin.modules.OA.dao.WorkBusinessDao">
+    <resultMap id="baseMap" type="com.linbin.modules.OA.entity.WorkBusinessOrder">
+        <id property="id" column="id"/>
+        <result property="workNo" column="work_no"/>
+        <result property="applyName" column="apply_name"/>
+        <result property="workBusinessStartTime" column="work_business_start_time"/>
+        <result property="workBusinessEndTime" column="work_business_end_time"/>
+        <result property="workBusinessReason" column="work_Business_reason"/>
+        <result property="workBusinessDay" column="work_Business_day"/>
+        <result property="workBusinessPlace" column="work_business_place"/>
+        <result property="status" column="status"/>
+        <result property="submitTime" column="submit_time"/>
+    </resultMap>
+
+    <select id="getMyWorkBusinessList" resultMap="baseMap">
+        select * from work_business
+        <where>
+            work_no = #{workNo}
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (work_business_start_time &gt;= #{queryStartDate} and work_business_end_time &lt;= #{queryEndDate})
+            </if>
+        </where>
+        order by submit_time desc
+        limit #{index} , #{pageSize}
+    </select>
+
+    <select id="countTotal" resultType="Integer">
+        select count(*) from work_business
+        <where>
+            work_no = #{workNo}
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (work_business_start_time &gt;= #{queryStartDate} and work_business_end_time &lt;= #{queryEndDate})
+            </if>
+        </where>
+    </select>
+
+    <select id="getWorkBusinessApprovalList" resultMap="baseMap">
+        select work_business.* from work_business , sys_user
+        <where>
+            work_business.work_no = sys_user.work_no and sys_user.dept_id = #{deptId} and work_business.status != 0
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (work_business_start_time &gt;= #{queryStartDate} and work_business_end_time &lt;= #{queryEndDate})
+            </if>
+        </where>
+        order by submit_time desc
+        limit #{index} , #{pageSize}
+    </select>
+
+    <select id="countApprovalTotal" resultType="Integer">
+        select count(*) from work_business, sys_user
+        <where>
+            work_business.work_no = sys_user.work_no and sys_user.dept_id = #{deptId} and work_business.status != 0
+            <if test="queryStartDate != null and queryEndDate != null">
+                and (work_business_start_time &gt;= #{queryStartDate} and work_business_end_time &lt;= #{queryEndDate})
+            </if>
+        </where>
+        order by submit_time desc
+    </select>
+</mapper>
