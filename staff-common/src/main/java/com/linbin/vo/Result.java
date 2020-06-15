@@ -15,6 +15,7 @@ public class Result<T> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+
     /**
      * 成功标志
      */
